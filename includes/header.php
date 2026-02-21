@@ -94,11 +94,7 @@ require_once __DIR__ . '/db.php';
     </div>
 </nav>
 
-<?php if (getenv('APP_ENV') === 'production'): ?>
-    <div class="alert alert-warning py-1 text-center small mb-0 rounded-0" style="font-size: 11px;">
-        <i class="fas fa-info-circle me-1"></i> <strong>Note:</strong> This is a serverless demo. New data added here will not persist after session restarts.
-    </div>
-<?php endif; ?>
+
 
 <?php if (isset($db_error) && $db_error): ?>
     <div class="alert alert-danger mb-0 text-center rounded-0">

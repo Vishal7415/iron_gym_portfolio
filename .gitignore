@@ -1,0 +1,20 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Gemini/Antigravity artifacts
+.gemini/
+brain/
+implementation_plan.md
+task.md
+walkthrough.md
+
+# PHP/App files
+full_output.html
+diagnose_mysql.php
+migrate_to_sqlite.php
+setup_db.php
+fix_password.php
+
+# Vercel
+.vercel

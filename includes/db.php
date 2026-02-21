@@ -14,6 +14,11 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
+    // Required for writable SQLite on Vercel /tmp (avoids filesystem lock errors)
+    $pdo->exec('PRAGMA journal_mode = MEMORY');
+    $pdo->exec('PRAGMA synchronous = OFF');
+    $pdo->exec('PRAGMA temp_store = MEMORY');
+
     // Auto-seed: create tables and default admin if they don't exist
     $pdo->exec("CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

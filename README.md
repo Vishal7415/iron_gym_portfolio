@@ -14,7 +14,7 @@ A premium, localized Gym Management System built with Core PHP. This version is 
 - **Backend**: PHP (7.4+)
 - **Database**: SQLite (Plug-and-play, no setup required)
 - **Frontend**: Bootstrap 5, Vanilla CSS, Font Awesome 6
-- **Deployment**: Configured for **Vercel** with PHP Runtime.
+- **Deployment**: Configured for **Vercel** with PHP Runtime. ⚡
 
 ## 📦 Getting Started
 

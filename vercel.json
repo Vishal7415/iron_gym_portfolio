@@ -1,27 +1,11 @@
 {
   "builds": [
     {
-      "src": "assets/**",
-      "use": "@vercel/static"
-    },
-    {
       "src": "**/*.php",
       "use": "vercel-php@0.7.1"
     }
   ],
   "routes": [
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*\\.php)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/admin/(.*)",
-      "dest": "/admin/$1"
-    },
     {
       "src": "/(.*)",
       "dest": "/$1"

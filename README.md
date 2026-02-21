@@ -1,39 +1,38 @@
-# Ironman Gym Automation System - Setup Instructions
+# Ironman Gym Automation System 🏋️‍♂️
 
-This is a fully functional demo of a Gym Management System built with Core PHP and MySQL.
+A premium, localized Gym Management System built with Core PHP. This version is **Zero-Config** and **Serverless-Ready**.
 
-## 🚀 Features
-- **Public Website**: Landing page, About, Membership, Contact, Lead Capture.
-- **Admin Panel**: Dashboard stats, Member CRUD, Search, Auto-Expiry.
-- **Auto Billing**: Generates printable PDF-style invoices.
-- **Diet Plan Demo**: Simulated diet plan generation and WhatsApp sharing logic.
-- **Lead Dashboard**: View and manage website enquiries.
+## 🚀 Key Features
+- **Public Website**: Premium Dark + Gold UI for Landing, Membership plans, and Contact pages.
+- **Admin Dashboard**: Real-time stats, revenue tracking, and lead management.
+- **Member Management**: CRUD operations, auto-expiry tracking, and billing.
+- **Lead Collection**: Instant capture from website to admin panel with WhatsApp integration.
+- **Invoice Generation**: Printable professional bills for every member.
+- **Diet Plan Demo**: Automated diet plan generation sharing via WhatsApp.
 
-## 🛠️ Local Setup
-1. **Database Setup**:
-   - Create a database named `ironman_gym` in your MySQL (e.g., via phpMyAdmin).
-   - Import the `database.sql` file provided in the root directory.
-   - Default Database User: `root`, Password: `` (empty).
+## 🛠️ Tech Stack
+- **Backend**: PHP (7.4+)
+- **Database**: SQLite (Plug-and-play, no setup required)
+- **Frontend**: Bootstrap 5, Vanilla CSS, Font Awesome 6
+- **Deployment**: Configured for **Vercel** with PHP Runtime.
 
-2. **Configuration**:
-   - Open `config.php` and update the database credentials if they differ from the defaults.
+## 📦 Getting Started
 
-3. **Admin Access**:
-   - URL: `http://your-local-url/ironman-gym-demo/admin/`
-   - **Username**: `admin`
-   - **Password**: `admin123`
+### Local Setup
+1. Clone the repository: `git clone https://github.com/Vishal7415/iron_gym_portfolio.git`
+2. Run using PHP's built-in server: `php -S localhost:8000`
+3. Open `http://localhost:8000` in your browser.
 
-## ☁️ cPanel Deployment
-1. **Upload Files**: Zip the project folder and upload it to `public_html/gym` or your desired directory. Extract the files.
-2. **Database**: Use "MySQL Database Wizard" in cPanel to create the database and user.
-3. **Import SQL**: Open "phpMyAdmin", select your new database, and import `database.sql`.
-4. **Update config.php**: Update the `DB_NAME`, `DB_USER`, and `DB_PASS` in `config.php` on the server.
-5. **Set PHP Version**: Ensure your hosting is running PHP 7.4 or higher.
+### Admin Credentials
+- **URL**: `http://localhost:8000/admin/`
+- **Username**: `admin`
+- **Password**: `admin123`
 
-## 🎨 Theme
-- **Theme**: Dark + Gold
-- **CSS**: Vanilla CSS with Bootstrap 5
-- **Icons**: Font Awesome 6
+## ☁️ Vercel Deployment
+This project is pre-configured for Vercel. 
+1. Import this repo into Vercel.
+2. Set Environment Variable: `APP_ENV=production`.
+3. **Note**: On Vercel, the SQLite database is read-only for new data persistence.
 
 ---
-**Note**: This is a demo application. The WhatsApp feature uses `wa.me` links for demonstration without requiring commercial API keys.
+Developed as a premium portfolio piece for Ironman Gym.

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/db.php';
 
-if (isset($_SESSION['admin_logged_in'])) {
+if (admin_is_logged_in()) {
     redirect('index.php');
 }
 
@@ -14,8 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $admin = $stmt->fetch();
 
     if ($admin && ($password === $admin['password'] || password_verify($password, $admin['password']))) {
-        $_SESSION['admin_logged_in'] = true;
-        $_SESSION['admin_username'] = $admin['username'];
+        admin_login_set($admin['username']);
         flash("Welcome back, Admin!", "success");
         redirect('index.php');
     } else {
@@ -30,7 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Ironman Gym</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root { --gold: #D4AF37; --dark-gold: #B8860B; --darker-bg: #0a0a0a; }
+        body { background-color: var(--darker-bg); color: #e0e0e0; font-family: 'Inter', sans-serif; }
+        .card { background-color: #111; border: 1px solid #333; }
+        .form-control { background-color: #222; border: 1px solid #444; color: white; }
+        .form-control:focus { background-color: #2a2a2a; border-color: var(--gold); color: white; box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.25); }
+        .text-gold { color: var(--gold) !important; }
+        .btn-gold { background-color: var(--gold); color: #0a0a0a; font-weight: bold; border: none; }
+        .btn-gold:hover { background-color: var(--dark-gold); color: white; }
+    </style>
     <style>
         body { background-color: var(--darker-bg); }
         .login-card { max-width: 400px; margin-top: 100px; border-top: 5px solid var(--gold); }

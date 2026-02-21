@@ -5,25 +5,62 @@ $pdo = null;
 $db_error = null;
 
 try {
-    // Primary: SQLite (Zero-config, works everywhere for this demo)
-    $sqlite_path = __DIR__ . '/../database.sqlite';
+    // On Vercel, the filesystem is read-only except /tmp.
+    // Detect Vercel by checking APP_ENV or the /tmp writable path.
+    $is_vercel = (getenv('APP_ENV') === 'production' || !is_writable(__DIR__ . '/../'));
+    $sqlite_path = $is_vercel ? '/tmp/database.sqlite' : __DIR__ . '/../database.sqlite';
+
     $pdo = new PDO("sqlite:$sqlite_path");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-} catch (PDOException $e_sqlite) {
-    // Fallback: MySQL (If SQLite fails for some reason)
-    try {
-        $dsn = "mysql:host=127.0.0.1;dbname=" . DB_NAME . ";charset=utf8mb4";
-        $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ];
-        $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-    } catch (PDOException $e_mysql) {
-        $db_error = "Database Connection Failed. ";
-        $db_error .= "SQLite Error: " . $e_sqlite->getMessage() . " | ";
-        $db_error .= "MySQL Error: " . $e_mysql->getMessage();
+
+    // Auto-seed: create tables and default admin if they don't exist
+    $pdo->exec("CREATE TABLE IF NOT EXISTS admins (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS members (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        plan_type TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        duration_months INTEGER NOT NULL,
+        expiry_date TEXT NOT NULL,
+        fee REAL NOT NULL,
+        diet_plan_sent INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS leads (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        goal TEXT,
+        status TEXT DEFAULT 'New',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    $pdo->exec("CREATE TABLE IF NOT EXISTS invoices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_no TEXT NOT NULL UNIQUE,
+        member_id INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        billing_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // Insert default admin if not exists (password: admin123)
+    $existing = $pdo->query("SELECT COUNT(*) FROM admins")->fetchColumn();
+    if ($existing == 0) {
+        $hash = password_hash('admin123', PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO admins (username, password) VALUES (?, ?)");
+        $stmt->execute(['admin', $hash]);
     }
+
+} catch (PDOException $e) {
+    $db_error = "Database Error: " . $e->getMessage();
 }
 ?>

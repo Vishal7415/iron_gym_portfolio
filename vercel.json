@@ -6,16 +6,11 @@
   },
   "routes": [
     {
-      "src": "/admin/(.*)",
-      "dest": "/admin/$1"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "$1"
     }
-  ]
+  ],
+  "env": {
+    "APP_ENV": "production"
+  }
 }

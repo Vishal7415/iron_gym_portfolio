@@ -1,18 +1,20 @@
 <?php
-// Ironman Gym Demo Configuration
+// The Fitness Empire Configuration
 
 // Database Configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'ironman_gym');
+define('DB_NAME', 'fitness_empire');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
 // Website Information
-define('GYM_NAME', 'Ironman Gym');
-define('GYM_PHONE', '09826043222');
-define('GYM_ADDRESS', '118 Ashoka Estate, Beside Apsara Talkies, Raisen Road, Bhopal, Madhya Pradesh 462023');
-define('GYM_LOCATION_LAT', '23.2500'); // Mock Lat
-define('GYM_LOCATION_LNG', '77.4167'); // Mock Lng
+define('GYM_NAME', 'The Fitness Empire');
+define('GYM_OWNER', 'Pravesh Gour');
+define('GYM_PHONE', '9644962106');
+define('GYM_INSTAGRAM', 'power_house_.9');
+define('GYM_ADDRESS', 'Charnal, Dist: Sehore, Madhya Pradesh');
+define('GYM_LOCATION_LAT', '23.1500'); // Sehore, MP
+define('GYM_LOCATION_LNG', '77.0834'); // Sehore, MP
 
 // Session start (local dev fallback)
 if (session_status() === PHP_SESSION_NONE) {
@@ -20,7 +22,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // --- Stateless Cookie Auth (for Vercel serverless) ---
-define('ADMIN_SECRET', 'ironman_gym_secret_2026');
+define('ADMIN_SECRET', 'fitness_empire_secret_2026');
 define('ADMIN_COOKIE', 'igym_auth');
 
 function admin_login_set($username) {

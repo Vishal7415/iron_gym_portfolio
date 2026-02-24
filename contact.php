@@ -1,72 +1,86 @@
 <?php require_once __DIR__ . '/includes/header.php'; ?>
 
-<section class="py-5 mt-5">
+<section style="padding: 120px 0 80px; background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 60%);">
     <div class="container">
-        <h2 class="section-title">Contact Us</h2>
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card p-4 h-100">
-                    <h4 class="text-gold mb-4">Get In Touch</h4>
-                    <ul class="list-unstyled">
-                        <li class="mb-4 d-flex">
-                            <div class="bg-gold p-3 rounded-circle me-3 flex-shrink-0" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-map-marker-alt text-dark"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Address</h5>
-                                <p class="text-muted mb-0"><?php echo GYM_ADDRESS; ?></p>
-                            </div>
-                        </li>
-                        <li class="mb-4 d-flex">
-                            <div class="bg-gold p-3 rounded-circle me-3 flex-shrink-0" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-phone text-dark"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Phone</h5>
-                                <p class="text-muted mb-0"><?php echo GYM_PHONE; ?></p>
-                            </div>
-                        </li>
-                        <li class="mb-4 d-flex">
-                            <div class="bg-gold p-3 rounded-circle me-3 flex-shrink-0" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-envelope text-dark"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-1">Email</h5>
-                                <p class="text-muted mb-0">info@ironmangym.com</p>
-                            </div>
-                        </li>
-                    </ul>
+        <div class="text-center mb-5 animate-on-scroll">
+            <div class="section-title">CONTACT US</div>
+            <h2 class="section-heading">Get In <span class="gradient-text">Touch</span></h2>
+            <p class="text-muted" style="max-width:500px;margin:0 auto;">Have questions? We'd love to hear from you. Reach out through any of the channels below.</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Contact Cards -->
+            <div class="col-lg-4 animate-on-scroll" style="transition-delay:0.1s;">
+                <div class="card p-4 text-center h-100">
+                    <div class="feature-icon mx-auto mb-3" style="width:70px;height:70px;font-size:1.5rem;">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Visit Us</h5>
+                    <p class="text-muted small mb-3"><?php echo GYM_ADDRESS; ?></p>
+                    <a href="https://maps.google.com?q=<?php echo urlencode(GYM_ADDRESS); ?>" target="_blank" class="btn btn-outline-gold btn-sm">
+                        <i class="fas fa-directions me-1"></i> Get Directions
+                    </a>
                 </div>
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card p-4 h-100">
-                    <h4 class="text-gold mb-4">Business Hours</h4>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Monday - Saturday</span>
-                        <span class="text-gold">06:00 AM - 10:00 PM</span>
+            <div class="col-lg-4 animate-on-scroll" style="transition-delay:0.2s;">
+                <div class="card p-4 text-center h-100">
+                    <div class="feature-icon mx-auto mb-3" style="width:70px;height:70px;font-size:1.5rem;">
+                        <i class="fas fa-phone"></i>
                     </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Sunday</span>
-                        <span class="text-gold">08:00 AM - 12:00 PM</span>
+                    <h5 class="fw-bold mb-2">Call Us</h5>
+                    <p class="text-muted small mb-3"><?php echo GYM_PHONE; ?></p>
+                    <a href="tel:<?php echo GYM_PHONE; ?>" class="btn btn-outline-gold btn-sm">
+                        <i class="fas fa-phone me-1"></i> Call Now
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 animate-on-scroll" style="transition-delay:0.3s;">
+                <div class="card p-4 text-center h-100">
+                    <div class="feature-icon mx-auto mb-3" style="width:70px;height:70px;font-size:1.5rem;">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <hr class="border-secondary">
-                    <h5 class="text-gold mt-3">Follow Us</h5>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="btn btn-outline-gold"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-gold btn btn-outline-gold"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-gold btn btn-outline-gold"><i class="fab fa-whatsapp"></i></a>
-                    </div>
+                    <h5 class="fw-bold mb-2">Working Hours</h5>
+                    <p class="text-muted small mb-1">Mon–Sat: 6:00 AM – 10:00 AM &amp; 4:00 PM – 10:00 PM</p>
+                    <p class="text-muted small mb-0">Sunday: Closed</p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
 
-<!-- Review Page link integrated in Contact section as per branding -->
-<section class="py-5 bg-darker-bg text-center">
-    <div class="container">
-        <h3 class="text-gold mb-4">Love your workout at Ironman Gym?</h3>
-        <a href="review.php" class="btn btn-gold btn-lg px-5">LEAVE A REVIEW</a>
+        <!-- Social & CTA -->
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="card p-4 p-lg-5 text-center animate-on-scroll" style="border:1px solid rgba(212,175,55,0.15);">
+                    <h4 class="fw-bold mb-2">Connect <span class="gradient-text">With Us</span></h4>
+                    <p class="text-muted small mb-4">Follow us on social media for daily motivation, tips, and updates.</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap mb-4">
+                        <a href="https://www.instagram.com/<?php echo GYM_INSTAGRAM; ?>" target="_blank"
+                           class="btn btn-outline-gold px-4 py-3">
+                            <i class="fab fa-instagram fa-lg me-2"></i> Instagram
+                        </a>
+                        <a href="https://wa.me/91<?php echo GYM_PHONE; ?>" target="_blank"
+                           class="btn py-3 px-4 fw-bold" style="background:linear-gradient(135deg,#25d366,#128C7E);color:#fff;border-radius:50px;">
+                            <i class="fab fa-whatsapp fa-lg me-2"></i> WhatsApp
+                        </a>
+                        <a href="tel:<?php echo GYM_PHONE; ?>"
+                           class="btn btn-gold px-4 py-3">
+                            <i class="fas fa-phone me-2"></i> Call Us
+                        </a>
+                    </div>
+                    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,0.2),transparent);margin:20px 0;"></div>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-star text-gold me-1"></i> 
+                        Love our gym? <a href="https://g.co/kgs/review" target="_blank" class="text-gold text-decoration-none">Leave us a review on Google!</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="mt-5 animate-on-scroll">
+            <div class="ratio ratio-21x9 rounded-4 overflow-hidden" style="border:1px solid rgba(212,175,55,0.15);">
+                <iframe src="https://www.google.com/maps?q=The+Fitness+Empire,Charnal,Sehore,Madhya+Pradesh,India&output=embed&z=15" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
     </div>
 </section>
 

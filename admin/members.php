@@ -1,33 +1,32 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/admin_layout.php';
 
 if (!admin_is_logged_in()) {
     redirect('login.php');
 }
 
 $action = $_GET['action'] ?? 'list';
-$id = $_GET['id'] ?? null;
+$id     = $_GET['id'] ?? null;
+$lead_count = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
 
-// Handle Actions (Add, Edit, Delete)
+// Handle Add/Edit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['add_member']) || isset($_POST['edit_member'])) {
-        $name = $_POST['name'];
-        $phone = $_POST['phone'];
-        $plan_type = $_POST['plan_type'];
+        $name       = trim($_POST['name']);
+        $phone      = trim($_POST['phone']);
+        $plan_type  = $_POST['plan_type'];
         $start_date = $_POST['start_date'];
-        $duration = (int)$_POST['duration'];
-        $fee = (float)$_POST['fee'];
-        
-        // Auto Calculate Expiry Date
-        $expiry_date = date('Y-m-d', strtotime("+$duration months", strtotime($start_date)));
+        $duration   = (int)$_POST['duration'];
+        $fee        = (float)$_POST['fee'];
+        $expiry_date = date('Y-m-d', strtotime("+{$duration} months", strtotime($start_date)));
 
         if (isset($_POST['add_member'])) {
-            $stmt = $pdo->prepare("INSERT INTO members (name, phone, plan_type, start_date, duration_months, expiry_date, fee) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$name, $phone, $plan_type, $start_date, $duration, $expiry_date, $fee]);
+            $pdo->prepare("INSERT INTO members (name, phone, plan_type, start_date, duration_months, expiry_date, fee) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                ->execute([$name, $phone, $plan_type, $start_date, $duration, $expiry_date, $fee]);
             flash("Member added successfully!");
         } else {
-            $stmt = $pdo->prepare("UPDATE members SET name = ?, phone = ?, plan_type = ?, start_date = ?, duration_months = ?, expiry_date = ?, fee = ? WHERE id = ?");
-            $stmt->execute([$name, $phone, $plan_type, $start_date, $duration, $expiry_date, $fee, $id]);
+            $pdo->prepare("UPDATE members SET name=?, phone=?, plan_type=?, start_date=?, duration_months=?, expiry_date=?, fee=? WHERE id=?")
+                ->execute([$name, $phone, $plan_type, $start_date, $duration, $expiry_date, $fee, $id]);
             flash("Member updated successfully!");
         }
         redirect('members.php');
@@ -35,13 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'delete' && $id) {
-    $stmt = $pdo->prepare("DELETE FROM members WHERE id = ?");
-    $stmt->execute([$id]);
-    flash("Member deleted successfully.", "warning");
+    $pdo->prepare("DELETE FROM members WHERE id=?")->execute([$id]);
+    flash("Member deleted.", "warning");
+    redirect('members.php');
+}
+if ($action === 'verify_payment' && $id) {
+    $pdo->prepare("UPDATE members SET payment_status='Verified' WHERE id=?")->execute([$id]);
+    flash("Payment verified! ✅");
+    redirect('members.php');
+}
+if ($action === 'reject_payment' && $id) {
+    $pdo->prepare("UPDATE members SET payment_status='Rejected' WHERE id=?")->execute([$id]);
+    flash("Payment rejected. ❌", "danger");
     redirect('members.php');
 }
 
-// Fetch member for edit
+// Fetch for edit
 $member = null;
 if ($action === 'edit' && $id) {
     $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
@@ -51,157 +59,189 @@ if ($action === 'edit' && $id) {
 
 // Search & List
 $search = $_GET['search'] ?? '';
-$query = "SELECT * FROM members WHERE name LIKE ? OR phone LIKE ? ORDER BY created_at DESC";
-$stmt = $pdo->prepare($query);
+$stmt = $pdo->prepare("SELECT * FROM members WHERE name LIKE ? OR phone LIKE ? ORDER BY created_at DESC");
 $stmt->execute(["%$search%", "%$search%"]);
 $members = $stmt->fetchAll();
+
+$pageTitle = match($action) {
+    'add'  => 'Add New Member',
+    'edit' => 'Edit Member',
+    default => 'Member Management',
+};
+
+adminHead($pageTitle);
+adminSidebar("members", (int)$lead_count);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member Management - Ironman Gym</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>:root{--gold:#D4AF37;--dark-gold:#B8860B;--dark-bg:#121212;--darker-bg:#0a0a0a;--light-text:#e0e0e0;--muted-text:#888;}body{background:var(--dark-bg);color:var(--light-text);font-family:Inter,sans-serif;}.bg-darker-bg{background-color:var(--darker-bg)!important}.card{background:var(--darker-bg);border:1px solid #333;}.text-gold{color:var(--gold)!important}.btn-gold{background:var(--gold);color:var(--darker-bg);font-weight:bold;border:none}.btn-gold:hover{background:var(--dark-gold);color:white}.btn-outline-gold{border:1px solid var(--gold);color:var(--gold)}.btn-outline-gold:hover{background:var(--gold);color:var(--darker-bg)}.text-muted{color:var(--muted-text)!important}.table{color:var(--light-text)}.form-control{background:#222;border:1px solid #444;color:white}.form-control:focus{background:#2a2a2a;border-color:var(--gold);color:white;box-shadow:0 0 0 .25rem rgba(212,175,55,.25)}.section-title{color:var(--gold);text-transform:uppercase;font-weight:700}</style>
-</head>
-<body class="bg-darker-bg">
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar placeholder or Include -->
-        <div class="col-md-2 d-none d-md-block bg-dark p-0 position-fixed" style="min-height: 100vh;">
-             <div class="p-4"><h4 class="text-gold fw-bold">IRONMAN</h4></div>
-             <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link py-3 px-4 text-light" href="index.php"><i class="fas fa-home me-2"></i> Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link py-3 px-4 text-gold active bg-dark-gold text-dark" href="members.php"><i class="fas fa-users me-2"></i> Members</a></li>
-                <li class="nav-item"><a class="nav-link py-3 px-4 text-light" href="leads.php"><i class="fas fa-bullhorn me-2"></i> Leads</a></li>
-                <li class="nav-item"><a class="nav-link py-3 px-4 text-danger" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
-             </ul>
-        </div>
-
-        <div class="col-md-10 offset-md-2 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Member Management</h2>
-                <?php if ($action === 'list'): ?>
-                    <a href="members.php?action=add" class="btn btn-gold">ADD NEW MEMBER</a>
-                <?php else: ?>
-                    <a href="members.php" class="btn btn-outline-gold">BACK TO LIST</a>
-                <?php endif; ?>
-            </div>
-
-            <?php if ($flash = get_flash()): ?>
-                <div class="alert alert-<?php echo $flash['type']; ?>"><?php echo $flash['message']; ?></div>
-            <?php endif; ?>
-
-            <?php if ($action === 'add' || $action === 'edit'): ?>
-                <div class="card p-4">
-                    <h4 class="text-gold mb-4"><?php echo $action === 'add' ? 'Add New Member' : 'Edit Member'; ?></h4>
-                    <form method="POST">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" name="name" class="form-control" required value="<?php echo $member['name'] ?? ''; ?>">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" name="phone" class="form-control" required value="<?php echo $member['phone'] ?? ''; ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Plan Type</label>
-                                <select name="plan_type" class="form-select bg-dark text-light border-secondary">
-                                    <option value="General Training" <?php echo ($member['plan_type'] ?? '') === 'General Training' ? 'selected' : ''; ?>>General Training</option>
-                                    <option value="Personal Training" <?php echo ($member['plan_type'] ?? '') === 'Personal Training' ? 'selected' : ''; ?>>Personal Training</option>
-                                    <option value="Cardio & Weight" <?php echo ($member['plan_type'] ?? '') === 'Cardio & Weight' ? 'selected' : ''; ?>>Cardio & Weight</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Start Date</label>
-                                <input type="date" name="start_date" class="form-control" required value="<?php echo $member['start_date'] ?? date('Y-m-d'); ?>">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Duration (Months)</label>
-                                <select name="duration" class="form-select bg-dark text-light border-secondary">
-                                    <option value="1" <?php echo ($member['duration_months'] ?? '') == 1 ? 'selected' : ''; ?>>1 Month</option>
-                                    <option value="3" <?php echo ($member['duration_months'] ?? '') == 3 ? 'selected' : ''; ?>>3 Months</option>
-                                    <option value="6" <?php echo ($member['duration_months'] ?? '') == 6 ? 'selected' : ''; ?>>6 Months</option>
-                                    <option value="12" <?php echo ($member['duration_months'] ?? '') == 12 ? 'selected' : ''; ?>>12 Months</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Total Fee Charged (₹)</label>
-                                <input type="number" name="fee" class="form-control" required value="<?php echo $member['fee'] ?? ''; ?>">
-                            </div>
-                        </div>
-                        <button type="submit" name="<?php echo $action === 'add' ? 'add_member' : 'edit_member'; ?>" class="btn btn-gold px-5 py-3 mt-3">SAVED MEMBER DETAILS</button>
-                    </form>
-                </div>
-            <?php else: ?>
-                <!-- Search Box -->
-                <div class="card mb-4 p-3">
-                    <form method="GET" class="row g-2">
-                        <div class="col-md-10">
-                            <input type="text" name="search" class="form-control" placeholder="Search by name or phone..." value="<?php echo $search; ?>">
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-gold w-100">SEARCH</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Members Table -->
-                <div class="card overflow-hidden">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Plan</th>
-                                    <th>Expiry Date</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($members as $m): ?>
-                                <?php 
-                                    $is_expired = strtotime($m['expiry_date']) < time();
-                                ?>
-                                <tr>
-                                    <td>#<?php echo $m['id']; ?></td>
-                                    <td class="fw-bold"><?php echo $m['name']; ?></td>
-                                    <td><?php echo $m['phone']; ?></td>
-                                    <td><?php echo $m['plan_type']; ?></td>
-                                    <td class="<?php echo $is_expired ? 'text-danger fw-bold' : ''; ?>">
-                                        <?php echo date('d M, Y', strtotime($m['expiry_date'])); ?>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<?php echo $is_expired ? 'danger' : 'success'; ?>">
-                                            <?php echo $is_expired ? 'Expired' : 'Active'; ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="invoice.php?id=<?php echo $m['id']; ?>" class="btn btn-outline-info" title="Print Invoice"><i class="fas fa-file-invoice"></i></a>
-                                            <a href="diet_demo.php?id=<?php echo $m['id']; ?>" class="btn btn-outline-success" title="Send Diet Plan"><i class="fas fa-apple-alt"></i></a>
-                                            <a href="members.php?action=edit&id=<?php echo $m['id']; ?>" class="btn btn-outline-gold"><i class="fas fa-edit"></i></a>
-                                            <a href="members.php?action=delete&id=<?php echo $m['id']; ?>" class="btn btn-outline-danger" onclick="return confirm('Are you sure?')"><i class="fas fa-trash"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
+<div class="admin-topbar">
+    <h1><i class="fas fa-users me-2" style="color:var(--gold);font-size:1rem;"></i> <?php echo $pageTitle; ?></h1>
+    <?php if ($action === 'list'): ?>
+        <a href="members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
+    <?php else: ?>
+        <a href="members.php" class="btn-outline-gold btn"><i class="fas fa-arrow-left me-2"></i> Back to List</a>
+    <?php endif; ?>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<div class="admin-content">
+    <?php renderFlash(); ?>
+
+    <?php if ($action === 'add' || $action === 'edit'): ?>
+    <!-- Add / Edit Form -->
+    <div class="a-card">
+        <div class="a-card-header">
+            <h5><i class="fas fa-user-edit me-2" style="color:var(--gold);"></i> <?php echo $pageTitle; ?></h5>
+        </div>
+        <div class="a-card-body">
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Member's full name"
+                               value="<?php echo htmlspecialchars($member['name'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" required placeholder="10-digit mobile number"
+                               value="<?php echo htmlspecialchars($member['phone'] ?? ''); ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Plan Type</label>
+                        <select name="plan_type" class="form-select">
+                            <?php $pt = $member['plan_type'] ?? ''; ?>
+                            <option value="General Training"  <?php echo $pt==='General Training'  ? 'selected':''; ?>>General Training</option>
+                            <option value="Personal Training" <?php echo $pt==='Personal Training' ? 'selected':''; ?>>Personal Training</option>
+                            <option value="Cardio & Weight"  <?php echo $pt==='Cardio & Weight'   ? 'selected':''; ?>>Cardio & Weight</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="start_date" class="form-control" required
+                               value="<?php echo $member['start_date'] ?? date('Y-m-d'); ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Duration</label>
+                        <select name="duration" class="form-select">
+                            <?php $dur = $member['duration_months'] ?? ''; ?>
+                            <option value="1"  <?php echo $dur==1  ? 'selected':''; ?>>1 Month</option>
+                            <option value="3"  <?php echo $dur==3  ? 'selected':''; ?>>3 Months</option>
+                            <option value="6"  <?php echo $dur==6  ? 'selected':''; ?>>6 Months</option>
+                            <option value="12" <?php echo $dur==12 ? 'selected':''; ?>>12 Months</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Total Fee Charged (₹)</label>
+                        <input type="number" name="fee" class="form-control" required placeholder="e.g. 1500"
+                               value="<?php echo $member['fee'] ?? ''; ?>">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" name="<?php echo $action === 'add' ? 'add_member' : 'edit_member'; ?>" class="btn-gold btn px-5">
+                        <i class="fas fa-save me-2"></i> <?php echo $action === 'add' ? 'Save Member' : 'Update Member'; ?>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <?php else: ?>
+    <!-- Search -->
+    <div class="a-card mb-3">
+        <div class="a-card-body" style="padding:16px 20px;">
+            <form method="GET" class="d-flex gap-2">
+                <input type="text" name="search" class="form-control" placeholder="Search by name or phone number…"
+                       value="<?php echo htmlspecialchars($search); ?>" style="flex:1;">
+                <button type="submit" class="btn-gold btn px-4"><i class="fas fa-search me-2"></i> Search</button>
+                <?php if ($search): ?>
+                    <a href="members.php" class="btn-outline-gold btn px-3">Clear</a>
+                <?php endif; ?>
+            </form>
+        </div>
+    </div>
+
+    <!-- Members Table -->
+    <div class="a-card">
+        <div class="a-card-header">
+            <h5><i class="fas fa-list me-2" style="color:var(--gold);"></i>
+                All Members
+                <span style="background:rgba(212,175,55,0.15);color:var(--gold);border-radius:50px;padding:2px 10px;font-size:0.75rem;margin-left:8px;"><?php echo count($members); ?></span>
+            </h5>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="a-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Plan</th>
+                        <th>Expiry</th>
+                        <th>Source</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if (empty($members)): ?>
+                    <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:40px;">
+                        <?php echo $search ? 'No members found matching "'.htmlspecialchars($search).'".' : 'No members yet. Add one to get started.'; ?>
+                    </td></tr>
+                <?php else: ?>
+                    <?php foreach ($members as $m):
+                        $is_expired = strtotime($m['expiry_date']) < time();
+                        $pay_status = $m['payment_status'] ?? 'Verified';
+                        $utr        = $m['utr'] ?? '';
+                        $source     = $m['source'] ?? 'Admin';
+                    ?>
+                    <tr>
+                        <td style="color:var(--text-muted);font-size:0.8rem;">#<?php echo $m['id']; ?></td>
+                        <td class="fw-semibold"><?php echo htmlspecialchars($m['name']); ?></td>
+                        <td style="color:var(--text-muted);"><?php echo htmlspecialchars($m['phone']); ?></td>
+                        <td style="color:var(--text-muted);font-size:0.85rem;"><?php echo htmlspecialchars($m['plan_type']); ?></td>
+                        <td style="color:<?php echo $is_expired ? '#EF4444':'var(--text-muted)'; ?>;font-size:0.88rem;">
+                            <?php echo date('d M, Y', strtotime($m['expiry_date'])); ?>
+                        </td>
+                        <td>
+                            <?php if($source === 'Online'): ?>
+                                <span class="badge-info">🌐 Online</span>
+                            <?php else: ?>
+                                <span class="badge-secondary">Admin</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if($pay_status === 'Pending'): ?>
+                                <span class="badge-warning">⏳ Pending</span>
+                                <?php if($utr): ?><br><small style="color:var(--text-muted);font-size:0.72rem;">UTR: <?php echo htmlspecialchars($utr); ?></small><?php endif; ?>
+                            <?php elseif($pay_status === 'Rejected'): ?>
+                                <span class="badge-danger">❌ Rejected</span>
+                            <?php else: ?>
+                                <span class="badge-success">✅ Verified</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php echo $is_expired ? '<span class="badge-danger">Expired</span>' : '<span class="badge-success">Active</span>'; ?>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                                <?php if($pay_status === 'Pending'): ?>
+                                    <a href="members.php?action=verify_payment&id=<?php echo $m['id']; ?>" class="btn-act btn-act-green" title="Verify Payment" onclick="return confirm('Verify this payment?')"><i class="fas fa-check"></i></a>
+                                    <a href="members.php?action=reject_payment&id=<?php echo $m['id']; ?>" class="btn-act btn-act-red" title="Reject Payment" onclick="return confirm('Reject this payment?')"><i class="fas fa-times"></i></a>
+                                <?php endif; ?>
+                                <a href="invoice.php?id=<?php echo $m['id']; ?>" class="btn-act btn-act-blue" title="Print Invoice"><i class="fas fa-file-invoice"></i></a>
+                                <a href="diet_demo.php?id=<?php echo $m['id']; ?>" class="btn-act btn-act-green" title="Diet Plan"><i class="fas fa-apple-alt"></i></a>
+                                <a href="members.php?action=edit&id=<?php echo $m['id']; ?>" class="btn-act btn-act-gold" title="Edit"><i class="fas fa-edit"></i></a>
+                                <a href="members.php?action=delete&id=<?php echo $m['id']; ?>" class="btn-act btn-act-red" title="Delete" onclick="return confirm('Delete this member permanently?')"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php endif; ?>
+
+</div>
+
+<?php adminEnd(); ?>

@@ -1,175 +1,177 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/admin_layout.php';
 
 if (!admin_is_logged_in()) {
     redirect('login.php');
 }
 
-// Get stats
-$member_count = $pdo->query("SELECT COUNT(*) FROM members")->fetchColumn();
-$lead_count = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
-$total_revenue = $pdo->query("SELECT SUM(fee) FROM members")->fetchColumn() ?: 0;
-$expiring_soon = $pdo->query("SELECT COUNT(*) FROM members WHERE expiry_date <= date('now', '+7 days')")->fetchColumn();
+// Stats
+$member_count   = $pdo->query("SELECT COUNT(*) FROM members")->fetchColumn();
+$lead_count     = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
+$total_revenue  = $pdo->query("SELECT SUM(fee) FROM members")->fetchColumn() ?: 0;
+$expiring_soon  = $pdo->query("SELECT COUNT(*) FROM members WHERE expiry_date <= date('now', '+7 days') AND expiry_date >= date('now')")->fetchColumn();
 
-// Get recent leads
+// Recent leads
 $recent_leads = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC LIMIT 5")->fetchAll();
+
+// Recent members
+$recent_members = $pdo->query("SELECT * FROM members ORDER BY created_at DESC LIMIT 5")->fetchAll();
+
+adminHead("Dashboard");
+adminSidebar("dashboard", (int)$lead_count);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Ironman Gym</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --gold: #D4AF37; --dark-gold: #B8860B; --dark-bg: #121212; --darker-bg: #0a0a0a; --light-text: #e0e0e0; --muted-text: #888; }
-        body { background-color: var(--dark-bg); color: var(--light-text); font-family: 'Inter', sans-serif; }
-        .card { background-color: var(--darker-bg); border: 1px solid #333; }
-        .text-gold { color: var(--gold) !important; }
-        .btn-gold { background-color: var(--gold); color: var(--darker-bg); font-weight: bold; border: none; }
-        .btn-gold:hover { background-color: var(--dark-gold); color: white; }
-        .btn-outline-gold { border: 1px solid var(--gold); color: var(--gold); }
-        .btn-outline-gold:hover { background-color: var(--gold); color: var(--darker-bg); }
-        .text-muted { color: var(--muted-text) !important; }
-        .table { color: var(--light-text); }
-        .badge { font-size: 0.75em; }
-    </style>
-    <style>
-        .sidebar { min-height: 100vh; background: #0a0a0a; border-right: 1px solid #333; }
-        .nav-link.active { background: var(--gold); color: black !important; }
-        .stat-card { border-left: 4px solid var(--gold); }
-    </style>
-</head>
-<body>
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-2 d-none d-md-block sidebar p-0 position-fixed">
-            <div class="p-4 text-center">
-                <h4 class="text-gold fw-bold mb-0">IRONMAN</h4>
-                <small class="text-muted">GYM ADMIN</small>
+<div class="admin-topbar">
+    <h1><i class="fas fa-chart-line me-2" style="color:var(--gold);font-size:1rem;"></i> Dashboard</h1>
+    <a href="members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
+</div>
+
+<div class="admin-content">
+
+    <?php renderFlash(); ?>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon gold"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="stat-value"><?php echo $member_count; ?></div>
+                    <div class="stat-label">Total Members</div>
+                </div>
             </div>
-            <ul class="nav flex-column mt-4">
-                <li class="nav-item">
-                    <a class="nav-link active py-3 px-4" href="index.php"><i class="fas fa-home me-2"></i> Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link py-3 px-4" href="members.php"><i class="fas fa-users me-2"></i> Members</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link py-3 px-4" href="leads.php"><i class="fas fa-bullhorn me-2"></i> Leads <span class="badge bg-danger ms-1"><?php echo $lead_count; ?></span></a>
-                </li>
-                <li class="nav-item mt-5">
-                    <a class="nav-link py-3 px-4 text-danger" href="logout.php"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
-                </li>
-            </ul>
         </div>
-
-        <!-- Main Content -->
-        <div class="col-md-10 offset-md-2 p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="fw-bold">Dashboard Summary</h2>
-                <a href="members.php?action=add" class="btn btn-gold"><i class="fas fa-plus me-2"></i> Add New Member</a>
-            </div>
-
-            <?php if ($flash = get_flash()): ?>
-                <div class="alert alert-<?php echo $flash['type']; ?> alert-dismissible fade show">
-                    <?php echo $flash['message']; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <?php endif; ?>
-
-            <!-- Stats Row -->
-            <div class="row mb-4">
-                <div class="col-md-3 mb-3">
-                    <div class="card stat-card p-4">
-                        <small class="text-muted uppercase mb-1 d-block">TOTAL MEMBERS</small>
-                        <h2 class="fw-bold mb-0 text-gold"><?php echo $member_count; ?></h2>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card stat-card p-4">
-                        <small class="text-muted uppercase mb-1 d-block">NEW LEADS</small>
-                        <h2 class="fw-bold mb-0 text-gold"><?php echo $lead_count; ?></h2>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card stat-card p-4">
-                        <small class="text-muted uppercase mb-1 d-block">TOTAL REVENUE</small>
-                        <h2 class="fw-bold mb-0 text-gold">₹<?php echo number_format($total_revenue); ?></h2>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="card stat-card p-4">
-                        <small class="text-muted uppercase mb-1 d-block">EXPIRING SOON</small>
-                        <h2 class="fw-bold mb-0 text-danger"><?php echo $expiring_soon; ?></h2>
-                    </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fas fa-indian-rupee-sign"></i></div>
+                <div>
+                    <div class="stat-value">₹<?php echo number_format($total_revenue); ?></div>
+                    <div class="stat-label">Total Revenue</div>
                 </div>
             </div>
-
-            <div class="row">
-                <!-- Recent Leads Table -->
-                <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header bg-dark d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 text-gold">Recent Website Leads</h5>
-                            <a href="leads.php" class="btn btn-sm btn-outline-gold">View All</a>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-dark table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Phone</th>
-                                            <th>Goal</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (empty($recent_leads)): ?>
-                                            <tr><td colspan="4" class="text-center py-4">No recent leads.</td></tr>
-                                        <?php else: ?>
-                                            <?php foreach ($recent_leads as $lead): ?>
-                                            <tr>
-                                                <td><?php echo $lead['name']; ?></td>
-                                                <td><?php echo $lead['phone']; ?></td>
-                                                <td><?php echo $lead['goal']; ?></td>
-                                                <td>
-                                                    <span class="badge bg-<?php echo $lead['status'] === 'New' ? 'danger' : 'success'; ?>">
-                                                        <?php echo $lead['status']; ?>
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fas fa-bullhorn"></i></div>
+                <div>
+                    <div class="stat-value"><?php echo $lead_count; ?></div>
+                    <div class="stat-label">New Leads</div>
                 </div>
-                
-                <!-- Quick Actions -->
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header bg-dark"><h5 class="mb-0 text-gold">Quick Actions</h5></div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="members.php" class="btn btn-outline-gold text-start"><i class="fas fa-search me-2"></i> Search Member</a>
-                                <a href="leads.php" class="btn btn-outline-gold text-start"><i class="fas fa-phone me-2"></i> Call Recent Lead</a>
-                                <a href="members.php?action=add" class="btn btn-outline-gold text-start"><i class="fas fa-file-invoice me-2"></i> Generate Bill</a>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+                <div>
+                    <div class="stat-value"><?php echo $expiring_soon; ?></div>
+                    <div class="stat-label">Expiring in 7 Days</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="row g-3">
+        <!-- Recent Leads -->
+        <div class="col-lg-8">
+            <div class="a-card h-100">
+                <div class="a-card-header">
+                    <h5><i class="fas fa-bullhorn me-2" style="color:var(--gold);"></i> Recent Leads</h5>
+                    <a href="leads.php" class="btn-outline-gold btn btn-sm">View All</a>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="a-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Goal</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($recent_leads)): ?>
+                            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px;">No leads yet. They'll appear when visitors submit the contact form.</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($recent_leads as $l): ?>
+                            <tr>
+                                <td class="fw-semibold"><?php echo htmlspecialchars($l['name']); ?></td>
+                                <td style="color:var(--text-muted);"><?php echo htmlspecialchars($l['phone']); ?></td>
+                                <td style="color:var(--text-muted);"><?php echo htmlspecialchars($l['goal']); ?></td>
+                                <td>
+                                    <?php if ($l['status'] === 'New'): ?>
+                                        <span class="badge-danger">New</span>
+                                    <?php else: ?>
+                                        <span class="badge-success">Contacted</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-4">
+            <div class="a-card h-100">
+                <div class="a-card-header">
+                    <h5><i class="fas fa-bolt me-2" style="color:var(--gold);"></i> Quick Actions</h5>
+                </div>
+                <div class="a-card-body d-grid gap-2">
+                    <a href="members.php" class="btn-outline-gold btn text-start"><i class="fas fa-search me-2"></i> Search Members</a>
+                    <a href="leads.php" class="btn-outline-gold btn text-start"><i class="fas fa-phone me-2"></i> Contact Leads</a>
+                    <a href="members.php?action=add" class="btn-gold btn text-start"><i class="fas fa-user-plus me-2"></i> Add New Member</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Members -->
+    <div class="a-card mt-3">
+        <div class="a-card-header">
+            <h5><i class="fas fa-users me-2" style="color:var(--gold);"></i> Recent Members</h5>
+            <a href="members.php" class="btn-outline-gold btn btn-sm">View All</a>
+        </div>
+        <div style="overflow-x:auto;">
+            <table class="a-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Plan</th>
+                        <th>Expiry</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if (empty($recent_members)): ?>
+                    <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">No members yet.</td></tr>
+                <?php else: ?>
+                    <?php foreach ($recent_members as $m): 
+                        $is_expired = strtotime($m['expiry_date']) < time();
+                    ?>
+                    <tr>
+                        <td class="fw-semibold"><?php echo htmlspecialchars($m['name']); ?></td>
+                        <td style="color:var(--text-muted);"><?php echo htmlspecialchars($m['phone']); ?></td>
+                        <td style="color:var(--text-muted);"><?php echo htmlspecialchars($m['plan_type']); ?></td>
+                        <td style="color:<?php echo $is_expired ? '#EF4444' : 'var(--text-muted)'; ?>;">
+                            <?php echo date('d M, Y', strtotime($m['expiry_date'])); ?>
+                        </td>
+                        <td>
+                            <?php echo $is_expired 
+                                ? '<span class="badge-danger">Expired</span>' 
+                                : '<span class="badge-success">Active</span>'; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<?php adminEnd(); ?>

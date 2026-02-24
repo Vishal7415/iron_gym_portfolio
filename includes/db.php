@@ -31,14 +31,23 @@ try {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         phone TEXT NOT NULL,
+        email TEXT DEFAULT '',
         plan_type TEXT NOT NULL,
         start_date TEXT NOT NULL,
         duration_months INTEGER NOT NULL,
         expiry_date TEXT NOT NULL,
         fee REAL NOT NULL,
+        source TEXT DEFAULT 'Admin',
+        utr TEXT DEFAULT '',
+        payment_status TEXT DEFAULT 'Verified',
         diet_plan_sent INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
+    // Add columns to existing DBs (SQLite ignores if already exists via try/catch)
+    try { $pdo->exec("ALTER TABLE members ADD COLUMN email TEXT DEFAULT ''"); } catch(Exception $e){}
+    try { $pdo->exec("ALTER TABLE members ADD COLUMN source TEXT DEFAULT 'Admin'"); } catch(Exception $e){}
+    try { $pdo->exec("ALTER TABLE members ADD COLUMN utr TEXT DEFAULT ''"); } catch(Exception $e){}
+    try { $pdo->exec("ALTER TABLE members ADD COLUMN payment_status TEXT DEFAULT 'Verified'"); } catch(Exception $e){}
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS leads (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

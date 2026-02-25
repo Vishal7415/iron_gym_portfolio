@@ -18,7 +18,7 @@ define('FOOTER_INCLUDED', true);
                        style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.15);color:var(--gold);transition:all 0.3s;">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="https://wa.me/919644962106" target="_blank"
+                    <a href="https://wa.me/919644962108" target="_blank"
                        style="width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(37,211,102,0.08);border:1px solid rgba(37,211,102,0.15);color:#25d366;transition:all 0.3s;">
                         <i class="fab fa-whatsapp"></i>
                     </a>
@@ -82,7 +82,7 @@ define('FOOTER_INCLUDED', true);
 </footer>
 
 <!-- WhatsApp Floating Button -->
-<a href="https://wa.me/919644962106" class="whatsapp-btn" target="_blank">
+<a href="https://wa.me/919644962108" class="whatsapp-btn" target="_blank">
     <i class="fab fa-whatsapp"></i>
 </a>
 

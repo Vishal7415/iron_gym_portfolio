@@ -10,7 +10,7 @@ define('DB_PASS', '');
 // Website Information
 define('GYM_NAME', 'The Fitness Empire');
 define('GYM_OWNER', 'Pravesh Gour');
-define('GYM_PHONE', '9644962106');
+define('GYM_PHONE', '9644962108');
 define('GYM_INSTAGRAM', 'power_house_.9');
 define('GYM_ADDRESS', 'Charnal, Dist: Sehore, Madhya Pradesh');
 define('GYM_LOCATION_LAT', '23.1500'); // Sehore, MP

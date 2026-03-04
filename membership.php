@@ -150,7 +150,7 @@
           <!-- Left: QR Code -->
           <div class="col-md-5 text-center d-flex flex-column align-items-center justify-content-center">
             <div class="p-3 rounded-4 mb-3" style="background:#fff; display:inline-block; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-              <img src="QR_CODE.jpeg" alt="PhonePe QR Code" style="width:210px; height:auto; border-radius:10px;">
+              <img src="assets/QR_CODE.jpeg" alt="PhonePe QR Code" style="width:210px; height:auto; border-radius:10px;">
             </div>
             <div class="badge px-3 py-2 mb-2" style="background:var(--primary-glow);border:1px solid var(--primary-lighter);border-radius:50px;font-size:0.85rem;color:var(--text-body);">
               <i class="fas fa-mobile-alt me-1 text-gold"></i> Scan & Pay via PhonePe / UPI

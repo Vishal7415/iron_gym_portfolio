@@ -298,9 +298,14 @@ function adminSidebar(string $active, int $leadCount = 0, int $pendingCount = 0)
 <?php
     // Vercel Data Warning
     if (getenv('APP_ENV') === 'production') {
-        echo '<div style="background:rgba(239,68,68,0.1); border-bottom:1px solid rgba(239,68,68,0.2); padding:10px 32px; font-size:0.8rem; color:#EF4444; display:flex; align-items:center; gap:10px;">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span><strong>Persistence Alert:</strong> You are on Vercel. Data saved here is temporary (usually resets daily). Please use manual backups or migrate to a persistent DB.</span>
+        echo '<div style="background:rgba(239,68,68,0.1); border-bottom:1px solid rgba(239,68,68,0.2); padding:10px 32px; font-size:0.8rem; color:#EF4444; display:flex; align-items:center; gap:10px; justify-content:space-between;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span><strong>Persistence Alert:</strong> You are on Vercel. Data saved here is temporary (usually resets daily).</span>
+                </div>
+                <a href="backup.php" class="btn btn-sm btn-outline-danger" style="font-size:0.7rem; padding:2px 10px; border-radius:50px;">
+                    <i class="fas fa-download me-1"></i> Download Backup
+                </a>
               </div>';
     }
 }

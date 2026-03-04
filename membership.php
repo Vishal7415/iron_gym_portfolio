@@ -186,7 +186,7 @@
               if ($error === 'duplicate_utr') echo '<div class="alert alert-danger py-2 small" style="border-radius:12px;"><i class="fas fa-exclamation-triangle me-1"></i> This Transaction ID has already been used.</div>';
               if ($error === 'invalid') echo '<div class="alert alert-danger py-2 small" style="border-radius:12px;"><i class="fas fa-exclamation-triangle me-1"></i> Please fill all required fields correctly.</div>';
             ?>
-            <form action="<?php echo BACKEND_URL ?: '/register.php'; ?>" method="POST" class="registration-form">
+            <form action="<?php echo BACKEND_URL ? rtrim(BACKEND_URL, '/') . '/register.php' : '/register.php'; ?>" method="POST" class="registration-form">
               <input type="hidden" name="duration" id="modalDuration">
 
               <div class="d-flex gap-2 mb-3">

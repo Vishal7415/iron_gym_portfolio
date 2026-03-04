@@ -127,7 +127,7 @@
                 </p>
                 <div class="hero-buttons d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
                     <a href="membership.php" class="btn btn-gold btn-lg px-5 py-3">
-                        <i class="fas fa-crown me-2"></i> VIEW PLANS
+                        <i class="fas fa-crown me-2"></i> JOIN NOW
                     </a>
                     <a href="contact.php" class="btn btn-outline-gold btn-lg px-5 py-3">
                         <i class="fas fa-map-marker-alt me-2"></i> FIND US

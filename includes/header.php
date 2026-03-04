@@ -301,6 +301,7 @@ require_once __DIR__ . '/db.php';
             height: 200%;
             background: radial-gradient(circle, rgba(212, 175, 55, 0.03) 0%, transparent 70%);
             animation: pulse-glow 4s ease-in-out infinite;
+            pointer-events: none;
         }
         .price {
             font-size: 3rem;

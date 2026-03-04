@@ -8,7 +8,7 @@ if (!admin_is_logged_in()) {
 if (isset($_GET['mark_contacted'])) {
     $pdo->prepare("UPDATE leads SET status='Contacted' WHERE id=?")->execute([$_GET['mark_contacted']]);
     flash("Lead marked as contacted.");
-    redirect('leads.php');
+    redirect('/admin/leads.php');
 }
 
 $lead_count = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
@@ -111,7 +111,7 @@ adminSidebar("leads", (int)$lead_count, (int)$pending_count);
                         <td>
                             <div class="d-flex gap-2 align-items-center">
                                 <?php if ($lead['status'] === 'New'): ?>
-                                    <a href="leads.php?mark_contacted=<?php echo $lead['id']; ?>"
+                                    <a href="/admin/leads.php?mark_contacted=<?php echo $lead['id']; ?>"
                                        class="btn-gold btn btn-sm" style="font-size:0.78rem;padding:6px 12px;">
                                         <i class="fas fa-check me-1"></i> Mark Contacted
                                     </a>

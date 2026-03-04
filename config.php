@@ -16,6 +16,10 @@ define('GYM_ADDRESS', 'Charnal, Dist: Sehore, Madhya Pradesh');
 define('GYM_LOCATION_LAT', '23.1500'); // Sehore, MP
 define('GYM_LOCATION_LNG', '77.0834'); // Sehore, MP
 
+// Frontend / Backend URLs
+define('FRONTEND_URL', getenv('FRONTEND_URL') ?: 'https://the-fitness-empire.vercel.app');
+define('BACKEND_URL', getenv('BACKEND_URL') ?: ''); // Will be set on Vercel side
+
 // Session start (local dev fallback)
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -68,4 +72,3 @@ function get_flash() {
     }
     return null;
 }
-?>

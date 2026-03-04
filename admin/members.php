@@ -2,7 +2,7 @@
 require_once __DIR__ . '/admin_layout.php';
 
 if (!admin_is_logged_in()) {
-    redirect('login.php');
+    redirect('/admin/login.php');
 }
 
 $action = $_GET['action'] ?? 'list';
@@ -24,30 +24,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['add_member'])) {
             $pdo->prepare("INSERT INTO members (name, phone, plan_type, start_date, duration_months, expiry_date, fee) VALUES (?, ?, ?, ?, ?, ?, ?)")
                 ->execute([$name, $phone, $plan_type, $start_date, $duration, $expiry_date, $fee]);
-            flash("Member added successfully!");
+            flash("Member added! ✅");
         } else {
             $pdo->prepare("UPDATE members SET name=?, phone=?, plan_type=?, start_date=?, duration_months=?, expiry_date=?, fee=? WHERE id=?")
                 ->execute([$name, $phone, $plan_type, $start_date, $duration, $expiry_date, $fee, $id]);
-            flash("Member updated successfully!");
+            flash("Member updated! ✅");
         }
-        redirect('members.php');
+        redirect('/admin/members.php');
     }
 }
 
 if ($action === 'delete' && $id) {
     $pdo->prepare("DELETE FROM members WHERE id=?")->execute([$id]);
-    flash("Member deleted.", "warning");
-    redirect('members.php');
+    flash("Member deleted.");
+    redirect('/admin/members.php');
 }
 if ($action === 'verify_payment' && $id) {
     $pdo->prepare("UPDATE members SET payment_status='Verified' WHERE id=?")->execute([$id]);
     flash("Payment verified! ✅");
-    redirect('members.php');
+    redirect('/admin/members.php');
 }
 if ($action === 'reject_payment' && $id) {
     $pdo->prepare("UPDATE members SET payment_status='Rejected' WHERE id=?")->execute([$id]);
-    flash("Payment rejected. ❌", "danger");
-    redirect('members.php');
+    flash("Payment rejected.");
+    redirect('/admin/members.php');
 }
 
 // Fetch for edit
@@ -80,9 +80,9 @@ adminSidebar("members", (int)$lead_count, (int)$pending_count);
         <i class="fas fa-users me-2" style="color:var(--gold);font-size:1rem;"></i> <?php echo $pageTitle; ?>
     </h1>
     <?php if ($action === 'list'): ?>
-        <a href="members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
+        <a href="/admin/members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
     <?php else: ?>
-        <a href="members.php" class="btn-outline-gold btn"><i class="fas fa-arrow-left me-2"></i> Back to List</a>
+        <a href="/admin/members.php" class="btn-outline-gold btn"><i class="fas fa-arrow-left me-2"></i> Back to List</a>
     <?php endif; ?>
 </div>
 
@@ -156,7 +156,7 @@ adminSidebar("members", (int)$lead_count, (int)$pending_count);
                        value="<?php echo htmlspecialchars($search); ?>" style="flex:1;">
                 <button type="submit" class="btn-gold btn px-4"><i class="fas fa-search me-2"></i> Search</button>
                 <?php if ($search): ?>
-                    <a href="members.php" class="btn-outline-gold btn px-3">Clear</a>
+                    <a href="/admin/members.php" class="btn-outline-gold btn px-3">Clear</a>
                 <?php endif; ?>
             </form>
         </div>
@@ -228,13 +228,13 @@ adminSidebar("members", (int)$lead_count, (int)$pending_count);
                         <td>
                             <div class="d-flex gap-1 flex-wrap">
                                 <?php if($pay_status === 'Pending'): ?>
-                                    <a href="members.php?action=verify_payment&id=<?php echo $m['id']; ?>" class="btn-act btn-act-green" title="Verify Payment" onclick="return confirm('Verify this payment?')"><i class="fas fa-check"></i></a>
-                                    <a href="members.php?action=reject_payment&id=<?php echo $m['id']; ?>" class="btn-act btn-act-red" title="Reject Payment" onclick="return confirm('Reject this payment?')"><i class="fas fa-times"></i></a>
+                                    <a href="/admin/members.php?action=verify_payment&id=<?php echo $m['id']; ?>" class="btn-act btn-act-green" title="Verify Payment" data-confirm="Verify this payment?"><i class="fas fa-check"></i></a>
+                                    <a href="/admin/members.php?action=reject_payment&id=<?php echo $m['id']; ?>" class="btn-act btn-act-red" title="Reject Payment" data-confirm="Reject this payment?"><i class="fas fa-times"></i></a>
                                 <?php endif; ?>
-                                <a href="invoice.php?id=<?php echo $m['id']; ?>" class="btn-act btn-act-blue" title="Print Invoice"><i class="fas fa-file-invoice"></i></a>
-                                <a href="diet_demo.php?id=<?php echo $m['id']; ?>" class="btn-act btn-act-green" title="Diet Plan"><i class="fas fa-apple-alt"></i></a>
-                                <a href="members.php?action=edit&id=<?php echo $m['id']; ?>" class="btn-act btn-act-gold" title="Edit"><i class="fas fa-edit"></i></a>
-                                <a href="members.php?action=delete&id=<?php echo $m['id']; ?>" class="btn-act btn-act-red" title="Delete" onclick="return confirm('Delete this member permanently?')"><i class="fas fa-trash"></i></a>
+                                <a href="/admin/invoice.php?id=<?php echo $m['id']; ?>" class="btn-act btn-act-blue" title="Print Invoice"><i class="fas fa-file-invoice"></i></a>
+                                <a href="/admin/diet_demo.php?id=<?php echo $m['id']; ?>" class="btn-act btn-act-green" title="Diet Plan"><i class="fas fa-apple-alt"></i></a>
+                                <a href="/admin/members.php?action=edit&id=<?php echo $m['id']; ?>" class="btn-act btn-act-gold" title="Edit"><i class="fas fa-edit"></i></a>
+                                <a href="/admin/members.php?action=delete&id=<?php echo $m['id']; ?>" class="btn-act btn-act-red" title="Delete" data-confirm="Delete this member permanently?"><i class="fas fa-trash"></i></a>
                             </div>
                         </td>
                     </tr>

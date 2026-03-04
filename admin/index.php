@@ -30,7 +30,7 @@ adminSidebar("dashboard", (int)$lead_count, (int)$pending_count);
         <div class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
         <i class="fas fa-chart-line me-2" style="color:var(--gold);font-size:1rem;"></i> Dashboard
     </h1>
-    <a href="members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
+    <a href="/admin/members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
 </div>
 
 <div class="admin-content">
@@ -83,7 +83,7 @@ adminSidebar("dashboard", (int)$lead_count, (int)$pending_count);
             <div class="a-card mb-4">
                 <div class="a-card-header">
                     <h5><i class="fas fa-clock me-2" style="color:var(--gold);"></i> Registration Requests (Pending Payment)</h5>
-                    <a href="members.php" class="btn-outline-gold btn btn-sm">View All Members</a>
+                    <a href="/admin/members.php" class="btn-gold btn px-4">View All Members</a>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="a-table">
@@ -108,8 +108,8 @@ adminSidebar("dashboard", (int)$lead_count, (int)$pending_count);
                                 <td style="color:var(--gold); font-family: monospace; font-weight: 700;"><?php echo htmlspecialchars($pm['utr']); ?></td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <a href="members.php?action=verify_payment&id=<?php echo $pm['id']; ?>" class="btn-act btn-act-green" title="Verify Payment" onclick="return confirm('Verify this payment?')"><i class="fas fa-check"></i></a>
-                                        <a href="members.php?action=reject_payment&id=<?php echo $pm['id']; ?>" class="btn-act btn-act-red" title="Reject Payment" onclick="return confirm('Reject this payment?')"><i class="fas fa-times"></i></a>
+                                        <a href="/admin/members.php?action=verify_payment&id=<?php echo $pm['id']; ?>" class="btn-act btn-act-green" title="Verify Payment" data-confirm="Verify this payment?"><i class="fas fa-check"></i></a>
+                                        <a href="/admin/members.php?action=reject_payment&id=<?php echo $pm['id']; ?>" class="btn-act btn-act-red" title="Reject Payment" data-confirm="Reject this payment?"><i class="fas fa-times"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -128,9 +128,9 @@ adminSidebar("dashboard", (int)$lead_count, (int)$pending_count);
                     <h5><i class="fas fa-bolt me-2" style="color:var(--gold);"></i> Quick Actions</h5>
                 </div>
                 <div class="a-card-body d-grid gap-2">
-                    <a href="members.php" class="btn-outline-gold btn text-start"><i class="fas fa-search me-2"></i> Search Members</a>
-                    <a href="leads.php" class="btn-outline-gold btn text-start"><i class="fas fa-phone me-2"></i> Contact Leads</a>
-                    <a href="members.php?action=add" class="btn-gold btn text-start"><i class="fas fa-user-plus me-2"></i> Add New Member</a>
+                    <a href="/admin/members.php" class="btn-outline-gold btn text-start"><i class="fas fa-search me-2"></i> Search Members</a>
+                    <a href="/admin/leads.php" class="btn-outline-gold btn text-start"><i class="fas fa-phone me-2"></i> Contact Leads</a>
+                    <a href="/admin/members.php?action=add" class="btn-gold btn text-start"><i class="fas fa-user-plus me-2"></i> Add New Member</a>
                 </div>
             </div>
         </div>

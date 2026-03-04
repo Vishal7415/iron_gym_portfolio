@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../includes/db.php';
 
 if (admin_is_logged_in()) {
-    redirect('index.php');
+    redirect('/admin/index.php');
 }
 
 $error = '';
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($admin && ($password === $admin['password'] || password_verify($password, $admin['password']))) {
         admin_login_set($admin['username']);
         flash("Welcome back, " . $admin['username'] . "!", "success");
-        redirect('index.php');
+        redirect('/admin/index.php');
     } else {
         $error = "Invalid username or password. Please try again.";
     }

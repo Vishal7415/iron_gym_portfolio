@@ -262,7 +262,11 @@ function adminHead(string $title): void { ?>
         .btn-act-gold { border-color:rgba(212,175,55,0.3);color:var(--gold);background:rgba(212,175,55,0.08); }
         .btn-act-gold:hover { background:rgba(212,175,55,0.18);color:var(--gold); }
         .btn-act-blue { border-color:rgba(99,102,241,0.3);color:#818CF8;background:rgba(99,102,241,0.08); }
-        .btn-act-blue:hover { background:rgba(99,102,241,0.18);color:#818CF8; }
+        .btn-act-blue:hover { background:rgba(99,102,241,0.18); color:#818CF8; }
+
+        /* Ensure icon clicks bubble to the anchor */
+        .btn-act i, .btn-gold i { pointer-events: none; }
+        .btn-act, .btn-gold { z-index: 5; position: relative; }
 
         /* Flash alerts */
         .flash-alert { border-radius: 12px; padding: 12px 20px; font-size: 0.9rem; margin-bottom: 20px; border: 1px solid; }
@@ -293,8 +297,9 @@ function adminHead(string $title): void { ?>
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
             z-index: 90;
+            pointer-events: none;
         }
-        .sidebar-overlay.show { display: block; }
+        .sidebar-overlay.show { display: block; pointer-events: auto; }
     </style>
 <?php }
 
@@ -309,14 +314,14 @@ function adminSidebar(string $active, int $leadCount = 0, int $pendingCount = 0)
     </div>
     <nav class="sidebar-nav">
         <div class="nav-label">Main</div>
-        <a href="index.php"   class="nav-link <?php echo $active==='dashboard' ? 'active':'' ?>"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a href="members.php" class="nav-link <?php echo $active==='members'   ? 'active':'' ?>">
+        <a href="/admin/index.php"   class="nav-link <?php echo $active==='dashboard' ? 'active':'' ?>"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="/admin/members.php" class="nav-link <?php echo $active==='members'   ? 'active':'' ?>">
             <i class="fas fa-users"></i> Members
             <?php if ($pendingCount > 0): ?>
                 <span style="margin-left:auto;background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid rgba(212,175,55,0.25);border-radius:50px;font-size:0.7rem;padding:2px 8px;font-weight:600;"><?php echo $pendingCount; ?></span>
             <?php endif; ?>
         </a>
-        <a href="leads.php"   class="nav-link <?php echo $active==='leads'     ? 'active':'' ?>">
+        <a href="/admin/leads.php"   class="nav-link <?php echo $active==='leads'     ? 'active':'' ?>">
             <i class="fas fa-bullhorn"></i> Leads
             <?php if ($leadCount > 0): ?>
                 <span style="margin-left:auto;background:rgba(239,68,68,0.15);color:#EF4444;border:1px solid rgba(239,68,68,0.25);border-radius:50px;font-size:0.7rem;padding:2px 8px;font-weight:600;"><?php echo $leadCount; ?></span>
@@ -324,7 +329,7 @@ function adminSidebar(string $active, int $leadCount = 0, int $pendingCount = 0)
         </a>
         <div class="nav-label">Account</div>
         <a href="../index.php" class="nav-link" target="_blank"><i class="fas fa-external-link-alt"></i> View Website</a>
-        <a href="logout.php"   class="nav-link text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <a href="/admin/logout.php"   class="nav-link text-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </nav>
 </div>
 <div class="admin-main">
@@ -353,6 +358,18 @@ function adminEnd(): void { ?>
     }
     
     document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+
+    // Centralized Action Handler for Delete/Verify/Reject
+    document.addEventListener('click', function(e) {
+        const actionLink = e.target.closest('a[data-confirm]');
+        if (actionLink) {
+            e.preventDefault();
+            const message = actionLink.getAttribute('data-confirm');
+            if (confirm(message)) {
+                window.location.href = actionLink.href;
+            }
+        }
+    });
 </script>
 </div>
 </body>
@@ -366,4 +383,3 @@ function renderFlash(): void {
         echo "<div class=\"flash-alert {$cls}\"><i class=\"fas fa-info-circle me-2\"></i>{$flash['message']}</div>";
     }
 }
-?>

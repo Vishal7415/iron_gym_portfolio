@@ -5,14 +5,24 @@ $pdo = null;
 $db_error = null;
 
 try {
-    // On Vercel, the filesystem is read-only except /tmp.
-    // Detect Vercel by checking APP_ENV or the /tmp writable path.
+    // Environment detection
     $is_vercel = (getenv('APP_ENV') === 'production' || !is_writable(__DIR__ . '/../'));
+    $is_render = (getenv('RENDER') === 'true'); // Render sets this variable
+    
     $base_sqlite = __DIR__ . '/../database.sqlite';
-    $sqlite_path = $is_vercel ? '/tmp/database.sqlite' : $base_sqlite;
+    
+    if ($is_render) {
+        $sqlite_path = '/var/www/html/data/database.sqlite';
+        // Ensure directory exists for Render persistent disk
+        if (!file_exists('/var/www/html/data')) {
+            mkdir('/var/www/html/data', 0755, true);
+        }
+    } else {
+        $sqlite_path = $is_vercel ? '/tmp/database.sqlite' : $base_sqlite;
+    }
 
-    // On Vercel, copy the initial DB to /tmp if it doesn't exist
-    if ($is_vercel && !file_exists($sqlite_path) && file_exists($base_sqlite)) {
+    // Copy initial DB if needed
+    if (!file_exists($sqlite_path) && file_exists($base_sqlite)) {
         copy($base_sqlite, $sqlite_path);
         chmod($sqlite_path, 0666);
     }
@@ -84,4 +94,3 @@ try {
 } catch (PDOException $e) {
     $db_error = "Database Error: " . $e->getMessage();
 }
-?>

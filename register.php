@@ -1,8 +1,17 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 
+// Enable CORS
+header("Access-Control-Allow-Origin: " . FRONTEND_URL);
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: membership.php');
+    header('Location: ' . FRONTEND_URL . '/membership.php');
     exit;
 }
 
@@ -21,13 +30,13 @@ $plans = [
 
 // Validate all required fields
 if (!$name || !$phone || !$utr || !isset($plans[$duration])) {
-    header('Location: membership.php?error=invalid');
+    header('Location: ' . FRONTEND_URL . '/membership.php?error=invalid');
     exit;
 }
 
 // UTR must be 12 digits (standard UPI UTR format)
 if (!preg_match('/^[0-9]{12}$/', $utr)) {
-    header('Location: membership.php?error=utr');
+    header('Location: ' . FRONTEND_URL . '/membership.php?error=utr');
     exit;
 }
 
@@ -47,7 +56,7 @@ try {
     $check = $pdo->prepare("SELECT id FROM members WHERE utr = ?");
     $check->execute([$utr]);
     if ($check->fetch()) {
-        header('Location: membership.php?error=duplicate_utr');
+        header('Location: ' . FRONTEND_URL . '/membership.php?error=duplicate_utr');
         exit;
     }
 
@@ -66,7 +75,7 @@ try {
     $stmt2->execute([$invoice_no, $member_id, $fee]);
 
     // Redirect to confirmation
-    header("Location: confirmation.php?id=$member_id");
+    header("Location: " . FRONTEND_URL . "/confirmation.php?id=$member_id");
     exit;
 
 } catch (PDOException $e) {

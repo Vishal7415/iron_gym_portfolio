@@ -8,7 +8,14 @@ try {
     // On Vercel, the filesystem is read-only except /tmp.
     // Detect Vercel by checking APP_ENV or the /tmp writable path.
     $is_vercel = (getenv('APP_ENV') === 'production' || !is_writable(__DIR__ . '/../'));
-    $sqlite_path = $is_vercel ? '/tmp/database.sqlite' : __DIR__ . '/../database.sqlite';
+    $base_sqlite = __DIR__ . '/../database.sqlite';
+    $sqlite_path = $is_vercel ? '/tmp/database.sqlite' : $base_sqlite;
+
+    // On Vercel, copy the initial DB to /tmp if it doesn't exist
+    if ($is_vercel && !file_exists($sqlite_path) && file_exists($base_sqlite)) {
+        copy($base_sqlite, $sqlite_path);
+        chmod($sqlite_path, 0666);
+    }
 
     $pdo = new PDO("sqlite:$sqlite_path");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

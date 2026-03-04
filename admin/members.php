@@ -8,6 +8,7 @@ if (!admin_is_logged_in()) {
 $action = $_GET['action'] ?? 'list';
 $id     = $_GET['id'] ?? null;
 $lead_count = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
+$pending_count = $pdo->query("SELECT COUNT(*) FROM members WHERE payment_status = 'Pending'")->fetchColumn();
 
 // Handle Add/Edit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -70,7 +71,7 @@ $pageTitle = match($action) {
 };
 
 adminHead($pageTitle);
-adminSidebar("members", (int)$lead_count);
+adminSidebar("members", (int)$lead_count, (int)$pending_count);
 ?>
 
 <div class="admin-topbar">

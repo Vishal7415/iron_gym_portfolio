@@ -265,7 +265,7 @@ function adminHead(string $title): void { ?>
     </style>
 <?php }
 
-function adminSidebar(string $active, int $leadCount = 0): void { ?>
+function adminSidebar(string $active, int $leadCount = 0, int $pendingCount = 0): void { ?>
 </head>
 <body>
 <div class="admin-sidebar">
@@ -277,7 +277,12 @@ function adminSidebar(string $active, int $leadCount = 0): void { ?>
     <nav class="sidebar-nav">
         <div class="nav-label">Main</div>
         <a href="index.php"   class="nav-link <?php echo $active==='dashboard' ? 'active':'' ?>"><i class="fas fa-chart-line"></i> Dashboard</a>
-        <a href="members.php" class="nav-link <?php echo $active==='members'   ? 'active':'' ?>"><i class="fas fa-users"></i> Members</a>
+        <a href="members.php" class="nav-link <?php echo $active==='members'   ? 'active':'' ?>">
+            <i class="fas fa-users"></i> Members
+            <?php if ($pendingCount > 0): ?>
+                <span style="margin-left:auto;background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid rgba(212,175,55,0.25);border-radius:50px;font-size:0.7rem;padding:2px 8px;font-weight:600;"><?php echo $pendingCount; ?></span>
+            <?php endif; ?>
+        </a>
         <a href="leads.php"   class="nav-link <?php echo $active==='leads'     ? 'active':'' ?>">
             <i class="fas fa-bullhorn"></i> Leads
             <?php if ($leadCount > 0): ?>
@@ -290,7 +295,15 @@ function adminSidebar(string $active, int $leadCount = 0): void { ?>
     </nav>
 </div>
 <div class="admin-main">
-<?php }
+<?php
+    // Vercel Data Warning
+    if (getenv('APP_ENV') === 'production') {
+        echo '<div style="background:rgba(239,68,68,0.1); border-bottom:1px solid rgba(239,68,68,0.2); padding:10px 32px; font-size:0.8rem; color:#EF4444; display:flex; align-items:center; gap:10px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Persistence Alert:</strong> You are on Vercel. Data saved here is temporary (usually resets daily). Please use manual backups or migrate to a persistent DB.</span>
+              </div>';
+    }
+}
 
 function adminEnd(): void { ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

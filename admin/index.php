@@ -8,8 +8,12 @@ if (!admin_is_logged_in()) {
 // Stats
 $member_count   = $pdo->query("SELECT COUNT(*) FROM members")->fetchColumn();
 $lead_count     = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
-$total_revenue  = $pdo->query("SELECT SUM(fee) FROM members")->fetchColumn() ?: 0;
+$pending_count  = $pdo->query("SELECT COUNT(*) FROM members WHERE payment_status = 'Pending'")->fetchColumn();
+$total_revenue  = $pdo->query("SELECT SUM(fee) FROM members WHERE payment_status = 'Verified'")->fetchColumn() ?: 0;
 $expiring_soon  = $pdo->query("SELECT COUNT(*) FROM members WHERE expiry_date <= date('now', '+7 days') AND expiry_date >= date('now')")->fetchColumn();
+
+// Recent pending members
+$pending_members = $pdo->query("SELECT * FROM members WHERE payment_status = 'Pending' ORDER BY created_at DESC LIMIT 5")->fetchAll();
 
 // Recent leads
 $recent_leads = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC LIMIT 5")->fetchAll();
@@ -18,7 +22,7 @@ $recent_leads = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC LIMIT 
 $recent_members = $pdo->query("SELECT * FROM members ORDER BY created_at DESC LIMIT 5")->fetchAll();
 
 adminHead("Dashboard");
-adminSidebar("dashboard", (int)$lead_count);
+adminSidebar("dashboard", (int)$lead_count, (int)$pending_count);
 ?>
 
 <div class="admin-topbar">
@@ -61,22 +65,22 @@ adminSidebar("dashboard", (int)$lead_count);
         </div>
         <div class="col-6 col-lg-3">
             <div class="stat-card">
-                <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+                <div class="stat-icon gold"><i class="fas fa-clock"></i></div>
                 <div>
-                    <div class="stat-value"><?php echo $expiring_soon; ?></div>
-                    <div class="stat-label">Expiring in 7 Days</div>
+                    <div class="stat-value"><?php echo $pending_count; ?></div>
+                    <div class="stat-label">Pending Payments</div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row g-3">
-        <!-- Recent Leads -->
+        <!-- Pending Registrations -->
         <div class="col-lg-8">
-            <div class="a-card h-100">
+            <div class="a-card mb-4">
                 <div class="a-card-header">
-                    <h5><i class="fas fa-bullhorn me-2" style="color:var(--gold);"></i> Recent Leads</h5>
-                    <a href="leads.php" class="btn-outline-gold btn btn-sm">View All</a>
+                    <h5><i class="fas fa-clock me-2" style="color:var(--gold);"></i> Registration Requests (Pending Payment)</h5>
+                    <a href="members.php" class="btn-outline-gold btn btn-sm">View All Members</a>
                 </div>
                 <div style="overflow-x:auto;">
                     <table class="a-table">
@@ -84,25 +88,26 @@ adminSidebar("dashboard", (int)$lead_count);
                             <tr>
                                 <th>Name</th>
                                 <th>Phone</th>
-                                <th>Goal</th>
-                                <th>Status</th>
+                                <th>Plan</th>
+                                <th>UTR Number</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                        <?php if (empty($recent_leads)): ?>
-                            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:32px;">No leads yet. They'll appear when visitors submit the contact form.</td></tr>
+                        <?php if (empty($pending_members)): ?>
+                            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px;">No pending registrations.</td></tr>
                         <?php else: ?>
-                            <?php foreach ($recent_leads as $l): ?>
+                            <?php foreach ($pending_members as $pm): ?>
                             <tr>
-                                <td class="fw-semibold"><?php echo htmlspecialchars($l['name']); ?></td>
-                                <td style="color:var(--text-muted);"><?php echo htmlspecialchars($l['phone']); ?></td>
-                                <td style="color:var(--text-muted);"><?php echo htmlspecialchars($l['goal']); ?></td>
+                                <td class="fw-semibold"><?php echo htmlspecialchars($pm['name']); ?></td>
+                                <td style="color:var(--text-muted);"><?php echo htmlspecialchars($pm['phone']); ?></td>
+                                <td style="color:var(--text-muted);"><?php echo htmlspecialchars($pm['plan_type']); ?></td>
+                                <td style="color:var(--gold); font-family: monospace; font-weight: 700;"><?php echo htmlspecialchars($pm['utr']); ?></td>
                                 <td>
-                                    <?php if ($l['status'] === 'New'): ?>
-                                        <span class="badge-danger">New</span>
-                                    <?php else: ?>
-                                        <span class="badge-success">Contacted</span>
-                                    <?php endif; ?>
+                                    <div class="d-flex gap-2">
+                                        <a href="members.php?action=verify_payment&id=<?php echo $pm['id']; ?>" class="btn-act btn-act-green" title="Verify Payment" onclick="return confirm('Verify this payment?')"><i class="fas fa-check"></i></a>
+                                        <a href="members.php?action=reject_payment&id=<?php echo $pm['id']; ?>" class="btn-act btn-act-red" title="Reject Payment" onclick="return confirm('Reject this payment?')"><i class="fas fa-times"></i></a>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>

@@ -12,10 +12,11 @@ if (isset($_GET['mark_contacted'])) {
 }
 
 $lead_count = $pdo->query("SELECT COUNT(*) FROM leads WHERE status = 'New'")->fetchColumn();
+$pending_count = $pdo->query("SELECT COUNT(*) FROM members WHERE payment_status = 'Pending'")->fetchColumn();
 $leads      = $pdo->query("SELECT * FROM leads ORDER BY created_at DESC")->fetchAll();
 
 adminHead("Leads");
-adminSidebar("leads", (int)$lead_count);
+adminSidebar("leads", (int)$lead_count, (int)$pending_count);
 ?>
 
 <div class="admin-topbar">

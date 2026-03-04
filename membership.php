@@ -157,6 +157,25 @@
             </div>
             <div id="modalPlanBadge" class="badge mt-1 px-3 py-2" style="background:var(--accent-gradient);color:#000;font-size:0.9rem;border-radius:50px;font-weight:700;"></div>
             <p class="text-muted mt-2 small">Pay ₹<strong id="modalAmount" class="text-gold"></strong> then fill the form →</p>
+
+            <!-- UPI Fallback Section -->
+            <div class="mt-4 p-3 rounded-4 w-100 text-start" style="background:rgba(212,175,55,0.05); border:1px dashed rgba(212,175,55,0.3);">
+              <p class="mb-2 small fw-bold text-muted text-uppercase" style="letter-spacing:1px; font-size: 0.7rem;">
+                <i class="fas fa-info-circle me-1"></i> QR not working? Use UPI
+              </p>
+              <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-white" style="font-size: 0.85rem;">
+                <code class="text-gold fw-bold" id="upiId">9644962108@ybl</code>
+                <button class="btn btn-sm btn-outline-gold py-1 px-2" style="font-size: 0.7rem;" onclick="copyUPI()">
+                  <i class="fas fa-copy"></i> Copy
+                </button>
+              </div>
+              <a id="upiAppBtn" href="#" class="btn btn-gold w-100 mt-3 py-2" style="font-size: 0.85rem; border-radius: 10px;">
+                <i class="fas fa-mobile-alt me-2"></i> PAY VIA ANY UPI APP
+              </a>
+              <div id="copyFeedback" class="text-success small mt-1 text-center" style="display:none; font-size: 0.75rem;">
+                <i class="fas fa-check-circle me-1"></i> UPI ID Copied!
+              </div>
+            </div>
           </div>
 
           <!-- Right: Registration Form -->
@@ -234,8 +253,24 @@ function openPayModal(duration, label, amount) {
     alert.style.borderColor = 'rgba(220,53,69,0.2)';
     alert.style.color = '#dc3545';
     alert.innerHTML = '<i class="fas fa-lock me-1"></i> Enter valid 12-digit UTR to enable registration. <strong>Admin verifies payment.</strong>';
+
+    // Set UPI Link
+    const upiId = "9644962108@ybl";
+    const upiLink = `upi://pay?pa=${upiId}&pn=The%20Fitness%20Empire&am=${amount}&cu=INR&tn=${encodeURIComponent(label)}`;
+    document.getElementById('upiAppBtn').href = upiLink;
+    document.getElementById('upiId').textContent = upiId;
+
     var modal = new bootstrap.Modal(document.getElementById('paymentModal'));
     modal.show();
+}
+
+function copyUPI() {
+    const upiId = document.getElementById('upiId').textContent;
+    navigator.clipboard.writeText(upiId).then(() => {
+        const feedback = document.getElementById('copyFeedback');
+        feedback.style.display = 'block';
+        setTimeout(() => { feedback.style.display = 'none'; }, 2000);
+    });
 }
 
 function validateUTR() {

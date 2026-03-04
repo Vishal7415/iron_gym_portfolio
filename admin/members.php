@@ -75,7 +75,10 @@ adminSidebar("members", (int)$lead_count, (int)$pending_count);
 ?>
 
 <div class="admin-topbar">
-    <h1><i class="fas fa-users me-2" style="color:var(--gold);font-size:1rem;"></i> <?php echo $pageTitle; ?></h1>
+    <h1>
+        <div class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+        <i class="fas fa-users me-2" style="color:var(--gold);font-size:1rem;"></i> <?php echo $pageTitle; ?>
+    </h1>
     <?php if ($action === 'list'): ?>
         <a href="members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
     <?php else: ?>

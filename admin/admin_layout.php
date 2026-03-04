@@ -135,7 +135,7 @@ function adminHead(string $title): void { ?>
         }
 
         .admin-topbar {
-            padding: 18px 32px;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--card-border);
             display: flex;
             align-items: center;
@@ -144,13 +144,27 @@ function adminHead(string $title): void { ?>
             position: sticky; top: 0; z-index: 50;
         }
         .admin-topbar h1 {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--text-light);
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .admin-content { padding: 28px 32px; }
+        .admin-content { padding: 20px; }
+
+        .mobile-toggle {
+            display: none;
+            background: var(--gold-glow);
+            border: 1px solid rgba(212,175,55,0.3);
+            color: var(--gold);
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            align-items: center; justify-content: center;
+            cursor: pointer;
+        }
 
         /* ---- STAT CARD ---- */
         .stat-card {
@@ -258,10 +272,29 @@ function adminHead(string $title): void { ?>
 
         /* Mobile */
         @media (max-width: 768px) {
-            .admin-sidebar { transform: translateX(-100%); }
+            .admin-sidebar { 
+                transform: translateX(-100%); 
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .admin-sidebar.show { transform: translateX(0); }
             .admin-main { margin-left: 0; }
-            .admin-content { padding: 16px; }
+            .admin-content { padding: 15px; }
+            .mobile-toggle { display: flex; }
+            .admin-topbar { padding: 10px 15px; }
+            
+            /* Better targets for actions on mobile */
+            .btn-act { width: 38px; height: 38px; font-size: 0.95rem; }
+            .stat-value { font-size: 1.4rem; }
         }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+        }
+        .sidebar-overlay.show { display: block; }
     </style>
 <?php }
 
@@ -311,7 +344,16 @@ function adminSidebar(string $active, int $leadCount = 0, int $pendingCount = 0)
 }
 
 function adminEnd(): void { ?>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function toggleSidebar() {
+        document.querySelector('.admin-sidebar').classList.toggle('show');
+        document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+    
+    document.getElementById('sidebarOverlay').addEventListener('click', toggleSidebar);
+</script>
 </div>
 </body>
 </html>

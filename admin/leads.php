@@ -20,7 +20,10 @@ adminSidebar("leads", (int)$lead_count, (int)$pending_count);
 ?>
 
 <div class="admin-topbar">
-    <h1><i class="fas fa-bullhorn me-2" style="color:var(--gold);font-size:1rem;"></i> Lead Management</h1>
+    <h1>
+        <div class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+        <i class="fas fa-bullhorn me-2" style="color:var(--gold);font-size:1rem;"></i> Lead Management
+    </h1>
     <div style="display:flex;align-items:center;gap:12px;">
         <?php if ($lead_count > 0): ?>
         <span style="background:rgba(239,68,68,0.12);color:#EF4444;border:1px solid rgba(239,68,68,0.2);border-radius:50px;padding:4px 14px;font-size:0.82rem;font-weight:600;">

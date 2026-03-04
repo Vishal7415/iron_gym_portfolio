@@ -26,7 +26,10 @@ adminSidebar("dashboard", (int)$lead_count, (int)$pending_count);
 ?>
 
 <div class="admin-topbar">
-    <h1><i class="fas fa-chart-line me-2" style="color:var(--gold);font-size:1rem;"></i> Dashboard</h1>
+    <h1>
+        <div class="mobile-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+        <i class="fas fa-chart-line me-2" style="color:var(--gold);font-size:1rem;"></i> Dashboard
+    </h1>
     <a href="members.php?action=add" class="btn-gold btn"><i class="fas fa-plus me-2"></i> Add Member</a>
 </div>
 
